@@ -101,8 +101,11 @@ pub fn hexidecimal_encription(file: &str){
         for j in i.chars() {
             let decimal: u8 = j as u8;
             let hexidecimal = format!(" x{:X}", decimal);
-            line.push_str(&hexidecimal);
 
+            match hexidecimal.as_str() {
+                " x9" => line.push_str(" x9Z"),
+                _ => line.push_str(&hexidecimal),
+            }
         }
         write!(hex_file, "{}\n",line).expect("Couldn't append to file!!");
     }
@@ -122,6 +125,6 @@ pub fn hex_to_text(file: &str){
       .unwrap();
 
       for i in contents{
-            write!(text_file, "{}", inpairs(i)).expect("Couldn't append to file");
+            write!(text_file, "{}\n", inpairs(i)).expect("Couldn't append to file");
       }
 }
