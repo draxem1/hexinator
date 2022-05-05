@@ -21,11 +21,25 @@ macro_rules! decimal {
 			     _ => 0, 
 			}
 		};
+		($x:expr, $y:expr) => {
+			match ($x,$y) {
+				('2','2') => '\"',
+				('2','7') => '\'',
+				('9','Z') => '\t',
+				_ => ' ',
+			}
+		};
 }
 pub mod conversion{
 use std::ascii;
 
 	fn to_text(pair: (char,char)) -> char{
+		let special = decimal!(pair.0,pair.1);
+
+		if special != ' ' {
+			return special;
+		}
+
 		let first_byte = decimal!(pair.0);
 		let second_byte = decimal!(pair.1);
 
