@@ -19,13 +19,14 @@ pub enum Crypt{
     None,
 }
 
-pub fn get_args() -> (Crypt, String){
+pub fn get_args() -> (Crypt, String, String){
 
     let args: Vec<String> = args().collect();
     let mut file = String::new();
+    let mut new_file = String::new();
     let mut command = String::new();
 
-    if args.len() < 3 {
+    if args.len() < 4 {
         help_menu();
     }
 
@@ -45,23 +46,32 @@ pub fn get_args() -> (Crypt, String){
         file = args[2].clone();
     }
 
+    if !Path::new(&args[3]).exists(){
+        new_file = args[3].clone();
+
+    } else {
+        println!("File already exist!");
+        help_menu();
+    }
+
     let crypt = match command.as_str() {
         "--code" => Crypt::Hex,
         "--decode"=> Crypt::Text,
         _ => Crypt::None,
     };
 
-    (crypt, file)
+    (crypt, file, new_file)
 }
 
 fn help_menu(){
-    let example = "\nExample: <COMMAND> <FILE>\n\n";
+    let example = "\nExample: <COMMAND> <FILE> <SAVE_AS>\n\n";
     let hex = "--code     [hexidecimal]\n";
     let text = "--decode   [text]\n";
     let file = "[path/filename]";
+    let saved = "[path/filename]";
 
-    let string = format!("{} <COMMAND> \t{} \t\t{} \n <FILE> \t{}",
-        example, hex, text, file);
+    let string = format!("{} <COMMAND> \t{} \t\t{} \n <FILE> \t{} \n <SAVE_AS> \t{}",
+        example, hex, text, file, saved);
 
     println!("{}",string);
 
@@ -82,18 +92,11 @@ fn read_file(file: &str) -> Vec<String> {
 }
 
 //Converts file to hex
-pub fn hexidecimal_encription(file: &str){
+pub fn hexidecimal_encription(file: &str, new_file: &str){
     let contents = read_file(file);
-    let new_file_name = format!("{}_hex.txt", &file[0..(file.len()-4)]);
     let mut line = String::new();
 
-    File::create(&new_file_name).expect("unable to create new file");
-
-    let mut hex_file = fs::OpenOptions::new()
-      .write(true)
-      .append(true)
-      .open(new_file_name)
-      .unwrap();
+    let mut hex_file = create_a_file(new_file);
 
     for i in contents {
         line.clear();
@@ -112,19 +115,24 @@ pub fn hexidecimal_encription(file: &str){
 }
 
 //Converts hex in file to text
-pub fn hex_to_text(file: &str){
+pub fn hex_to_text(file: &str, new_file: &str){
     let contents = read_file(file);
-    let new_file_name = format!("{}test.txt", &file[0..(file.len()-8)]);
-
-    File::create(&new_file_name).expect("unable to create new file!");
-
-    let mut text_file = fs::OpenOptions::new()
-      .write(true)
-      .append(true)
-      .open(new_file_name)
-      .unwrap();
+    let mut text_file = create_a_file(new_file);
 
       for i in contents{
             write!(text_file, "{}\n", inpairs(i)).expect("Couldn't append to file");
       }
+}
+
+fn create_a_file(file: &str) -> File{
+    let name = format!("Unable to create file: {}", file);
+    File::create(file).expect(&name);
+
+    let to_saved = fs::OpenOptions::new()
+      .write(true)
+      .append(true)
+      .open(file)
+      .unwrap();
+
+    to_saved
 }

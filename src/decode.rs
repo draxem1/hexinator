@@ -21,6 +21,7 @@ macro_rules! decimal {
 			     _ => 0, 
 			}
 		};
+		//escape characters
 		($x:expr, $y:expr) => {
 			match ($x,$y) {
 				('2','2') => '\"',
@@ -30,6 +31,7 @@ macro_rules! decimal {
 			}
 		};
 }
+
 pub mod conversion{
 use std::ascii;
 
@@ -43,7 +45,7 @@ use std::ascii;
 		let first_byte = decimal!(pair.0);
 		let second_byte = decimal!(pair.1);
 
-		//(x * 16^n-1) + (y * 16^n-1) 
+		//equation hex to dec: (x * 16^n-1) + (y * 16^n-1) 
 		let mut character = ascii::escape_default(first_byte * 16 + second_byte);
 		character.next().unwrap() as char
 	}
@@ -51,6 +53,7 @@ use std::ascii;
 	pub fn inpairs(mut hex: String) -> String{
 		hex.remove_matches(" x");
 
+		//splits string into char pairs
 		let v: Vec<(char,char)> =
 			hex.chars().step_by(2)
 			.zip(hex.chars().skip(1).step_by(2))
